@@ -1,0 +1,27 @@
+name: Publish nuget package
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet build --configuration Release .
+      - name: Create the packages
+        run: |
+          ghref=(${GITHUB_REF//\// })
+          VERSION="${ghref[2]}"
+          VERSION=${VERSION//v}
+          dotnet pack --configuration Release -p:PackageVersion=${VERSION} -o ./nupkgs ./TrieNet
+      - name: Publish the TrieNet packages to NuGet
+        run: dotnet nuget push nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols --api-key ${{secrets.NUGET_API_KEY}}
