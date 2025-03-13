@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 8.0.x
-      - run: dotnet build --configuration Release .
+      - run: dotnet build TrieNet --configuration Release .
       - name: Create the packages
         run: |
           ghref=(${GITHUB_REF//\// })
